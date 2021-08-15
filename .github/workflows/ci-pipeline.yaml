@@ -1,0 +1,96 @@
+name: CI Pipeline
+
+on: [pull_request]
+
+jobs:
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Install npm
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: cd ./server && npm install
+      - name: Run Lint
+        run: cd ./server &&  npm run lint
+
+  building:
+    needs: linting
+    name: Building
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Install npm
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: cd ./server && npm install
+      - name: Run Build
+        run: cd ./server && npm run build
+
+  testing:
+    needs: building
+    name: Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+        chunk: [1, 2]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: Install npm
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: cd ./server && npm install
+      - name: Run testing
+        run: cd ./server && ./scripts/run-tests.sh ${{ matrix.chunk }} 10
+        env:
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: data
+          POSTGRES_HOST: localhost
+          ADMINER_PORT: 8080
+          POSTGRES_MIGRATION_PATH: ./src/infrastructure/database/sql
+          REDIS_PORT: 6379
+          MAILHOG_CLIENT_PORT: 8025
+          SMTP_PORT: 1025
+          MAILHOG_HOST: localhost
+          SERVICE_MAIL: team@social-aggregation.com
+          VERIFICATION_TOKEN_SECRET: secret
+          ADMIN_EMAIL: admin@social-aggregation.com
+          JWT_PRIVATE_KEY: secret
+          ADMIN_AUTH_TOKEN: secret
+          EMAIL_VERIFICATION_TOKEN_SECRET: secret
+          PASSWORD_RESET_TOKEN: secret
+          STORAGE_ACCESS: access
+          STORAGE_SECRET: secret
+          STORAGE_ENDPOINT: http://localhost:9000
+          STORAGE_BUCKET: bucket
+          ELASTICSEARCH_ENDPOINT: http://localhost:9200
+          ENV_NAMESPACE: dev
+          PROGRESS_REPORT_SECRET: secret
