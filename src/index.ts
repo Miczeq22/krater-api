@@ -1,20 +1,22 @@
 /* eslint-disable import/first */
 require('dotenv').config();
 
-import express from 'express';
+import http from 'http';
+import { Logger } from '@tools/logger';
+import { Application } from 'express';
+import { createAppContainer } from './container/app-container';
 
 (async () => {
-  const app = express();
+  const container = await createAppContainer();
 
-  app.get('/', (_, res) => {
-    res.status(200).send('Hello, World!');
-  });
+  const app = container.resolve<Application>('app');
+  const logger = container.resolve<Logger>('logger');
+
+  const server = http.createServer(app);
 
   const port = process.env.PORT;
 
-  app.listen(port, () => {
-    console.log(
-      `Server started at ${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`,
-    );
+  server.listen(port, () => {
+    logger.info(`🚀 Server is listening on ${process.env.PROTOCOL}://${process.env.HOST}:${port}`);
   });
 })();
