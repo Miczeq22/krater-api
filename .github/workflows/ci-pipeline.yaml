@@ -20,9 +20,9 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: Install npm
         if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: cd ./server && npm install
+        run: npm install
       - name: Run Lint
-        run: cd ./server &&  npm run lint
+        run: npm run lint
 
   building:
     needs: linting
@@ -42,9 +42,9 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: Install npm
         if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: cd ./server && npm install
+        run: npm install
       - name: Run Build
-        run: cd ./server && npm run build
+        run: npm run build
 
   testing:
     needs: building
@@ -65,9 +65,9 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: Install npm
         if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: cd ./server && npm install
+        run: npm install
       - name: Run testing
-        run: cd ./server && ./scripts/run-tests.sh ${{ matrix.chunk }} 10
+        run: ./scripts/run-tests.sh ${{ matrix.chunk }} 10
         env:
           POSTGRES_PORT: 5432
           POSTGRES_USER: root
@@ -94,3 +94,6 @@ jobs:
           ELASTICSEARCH_ENDPOINT: http://localhost:9200
           ENV_NAMESPACE: dev
           PROGRESS_REPORT_SECRET: secret
+          PGADMIN_EMAIL: admin@admin.com
+          PGADMIN_DEFAULT_PASSWORD: admin
+          PGADMIN_PORT: 8085
