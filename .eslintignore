@@ -1,0 +1,7 @@
+*.sql
+*.hbs
+Dockerfile
+*.json
+*.js
+plop-templates
+*.html

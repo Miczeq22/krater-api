@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "types": ["node", "jest"],
+    "module": "commonjs",
+    "declaration": false,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "sourceMap": false,
+    "inlineSourceMap": true,
+    "outDir": "build",
+    "typeRoots": ["./node_modules/@types", "./typings"],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["typings/*"],
+      "@app/*": ["./src/app/*"],
+      "@errors/*": ["src/errors/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@api/*": ["./src/api/*"],
+      "@core/*": ["./src/core/*"],
+      "@tools/*": ["./src/tools/*"],
+      "@tests/*": ["./src/tests/*"],
+      "@root/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "typings/*"],
+  "exclude": ["node_modules", "build/**"]
+}
