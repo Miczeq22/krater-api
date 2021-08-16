@@ -52,7 +52,7 @@ class RegisterNewAccountHttpAction implements HttpAction {
       },
     },
     responses: {
-      200: {
+      201: {
         description: 'Successufly registered.',
       },
       400: {
