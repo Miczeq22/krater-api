@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('registration_date').notNullable();
     table.timestamp('email_confirmation_date').nullable();
     table.string('status').notNullable();
-    table.string('name').notNullable();
+    table.string('nickname').notNullable();
   });
 }
 
