@@ -2,6 +2,7 @@ import { CommandHandler } from '@root/framework/processing/command-handler';
 import { TransactionalOperation } from '@root/framework/transactional-operation';
 import { AccountRegistration } from '@root/modules/platform-access/core/account-registration/account-registration.aggregate-root';
 import { AccountRegistrationRepository } from '@root/modules/platform-access/core/account-registration/account-registration.repository';
+import { NicknameUniqueCheckerService } from '@root/modules/platform-access/core/services/nickname-unique-checker.service';
 import { AccountEmailCheckerService } from '@root/modules/shared/core/account-email/account-email-checker.service';
 import { PasswordHashProviderService } from '@root/modules/shared/core/account-password/password-hash-provider.service';
 import {
@@ -14,6 +15,7 @@ interface Dependencies {
   accountEmailCheckerService: AccountEmailCheckerService;
   passwordHashProviderService: PasswordHashProviderService;
   performTransactionalOperation: TransactionalOperation;
+  nicknameUniqueCheckerService: NicknameUniqueCheckerService;
 }
 
 export class RegisterNewAccountCommandHandler extends CommandHandler<RegisterNewAccountCommand> {
@@ -27,6 +29,7 @@ export class RegisterNewAccountCommandHandler extends CommandHandler<RegisterNew
       passwordHashProviderService,
       performTransactionalOperation,
       accountEmailCheckerService,
+      nicknameUniqueCheckerService,
     } = this.dependencies;
 
     const account = await AccountRegistration.registerNew({
@@ -35,6 +38,7 @@ export class RegisterNewAccountCommandHandler extends CommandHandler<RegisterNew
       nickname,
       passwordHashProviderService,
       accountEmailCheckerService,
+      nicknameUniqueCheckerService,
     });
 
     await performTransactionalOperation(accountRegistrationRepository.insert.bind(this), account);

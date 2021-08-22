@@ -1,5 +1,6 @@
 import { InMemorMailerServiceImpl } from '@infrastructure/mailer/in-memory-mailer.service';
 import { RabbitMessageQueueServiceImpl } from '@infrastructure/message-queue/rabbit-mq/rabbit-message-queue.service';
+import { NicknameUniqueCheckerServiceImpl } from '@root/modules/platform-access/infrastructure/nickname-unique-checker.service/nickname-unique-checker.service';
 import { AccountEmailCheckerServiceImpl } from '@root/modules/shared/infrastructure/account-email-checker/account-email-checker.service';
 import { PasswordHashProviderServiceImpl } from '@root/modules/shared/infrastructure/password-hash-provider/password-hash-provider.service';
 import { JwtTokenProviderServiceImpl } from '@root/modules/shared/infrastructure/token-provider/jwt-token-provider.service';
@@ -12,5 +13,6 @@ export const registerServices = (container: AwilixContainer) => {
     messageQueueService: asClass(RabbitMessageQueueServiceImpl).singleton(),
     mailerService: asClass(InMemorMailerServiceImpl).singleton(),
     tokenProviderService: asClass(JwtTokenProviderServiceImpl).singleton(),
+    nicknameUniqueCheckerService: asClass(NicknameUniqueCheckerServiceImpl).singleton(),
   });
 };
