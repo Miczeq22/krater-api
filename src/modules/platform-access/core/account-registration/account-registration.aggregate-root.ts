@@ -5,7 +5,10 @@ import { AccountEmail } from '@root/modules/shared/core/account-email/account-em
 import { AccountPassword } from '@root/modules/shared/core/account-password/account-password.value-object';
 import { PasswordHashProviderService } from '@root/modules/shared/core/account-password/password-hash-provider.service';
 import { AccountStatus } from '@root/modules/shared/core/account-status/account-status.value-object';
+import { NicknameIsNotUniqueError } from '../../errors/nickanme-is-not-unique.error';
+import { NicknameUniqueCheckerService } from '../services/nickname-unique-checker.service';
 import { NewAccountRegisteredEvent } from './events/new-account-registered.event';
+import { NicknameMustBeUniqueRule } from './rules/nickname-must-be-unique.rule';
 
 interface AccountRegistrationProps {
   email: AccountEmail;
@@ -32,6 +35,7 @@ interface RegisterNewAccountData {
   nickname: string;
   accountEmailCheckerService: AccountEmailCheckerService;
   passwordHashProviderService: PasswordHashProviderService;
+  nicknameUniqueCheckerService: NicknameUniqueCheckerService;
 }
 
 export class AccountRegistration extends AggregateRoot<AccountRegistrationProps> {
@@ -45,7 +49,13 @@ export class AccountRegistration extends AggregateRoot<AccountRegistrationProps>
     nickname,
     accountEmailCheckerService,
     passwordHashProviderService,
+    nicknameUniqueCheckerService,
   }: RegisterNewAccountData) {
+    await AccountRegistration.checkRule(
+      new NicknameMustBeUniqueRule(nickname, nicknameUniqueCheckerService),
+      NicknameIsNotUniqueError,
+    );
+
     const account = new AccountRegistration({
       nickname,
       email: await AccountEmail.createNew(email, accountEmailCheckerService),

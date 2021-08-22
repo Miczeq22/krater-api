@@ -2,19 +2,24 @@ import { AccountEmailCheckerService } from '@root/modules/shared/core/account-em
 import { PasswordHashProviderService } from '@root/modules/shared/core/account-password/password-hash-provider.service';
 import { AccountStatus } from '@root/modules/shared/core/account-status/account-status.value-object';
 import { createMockProxy } from '@tools/mock-proxy';
+import { NicknameUniqueCheckerService } from '../services/nickname-unique-checker.service';
 import { AccountRegistration } from './account-registration.aggregate-root';
 import { NewAccountRegisteredEvent } from './events/new-account-registered.event';
 
 describe('[DOMAIN] Platform Access/Account Registration', () => {
   const accountEmailCheckerService = createMockProxy<AccountEmailCheckerService>();
   const passwordHashProviderService = createMockProxy<PasswordHashProviderService>();
+  const nicknameUniqueCheckerService = createMockProxy<NicknameUniqueCheckerService>();
 
   beforeEach(() => {
     accountEmailCheckerService.mockClear();
     passwordHashProviderService.mockClear();
+    nicknameUniqueCheckerService.mockClear();
   });
 
-  test('should throw an error if email have invalid format', async () => {
+  test('should throw an error when nickname is not unique', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(false);
+
     await expect(() =>
       AccountRegistration.registerNew({
         email: 'invalid-email',
@@ -22,11 +27,28 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         accountEmailCheckerService,
         passwordHashProviderService,
         nickname: '#name',
+        nicknameUniqueCheckerService,
+      }),
+    ).rejects.toThrowError('Provided nickname is already taken. Please use different one.');
+  });
+
+  test('should throw an error if email have invalid format', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
+
+    await expect(() =>
+      AccountRegistration.registerNew({
+        email: 'invalid-email',
+        password: '#password',
+        accountEmailCheckerService,
+        passwordHashProviderService,
+        nickname: '#name',
+        nicknameUniqueCheckerService,
       }),
     ).rejects.toThrowError('Provided email format is not valid.');
   });
 
   test('should throw an error if email is not unique', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(false);
 
     await expect(() =>
@@ -36,11 +58,13 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         accountEmailCheckerService,
         passwordHashProviderService,
         nickname: '#name',
+        nicknameUniqueCheckerService,
       }),
     ).rejects.toThrowError('Provided email address is already in use.');
   });
 
   test('should throw an error if email domain is invalid', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(true);
 
     await expect(() =>
@@ -50,6 +74,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         accountEmailCheckerService,
         passwordHashProviderService,
         nickname: '#name',
+        nicknameUniqueCheckerService,
       }),
     ).rejects.toThrowError(
       'Provided email domain is not supported. Please use supported domain: gmail.com',
@@ -57,6 +82,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
   });
 
   test('should throw an error if password is not strong enough and requires digit', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(true);
 
     await expect(() =>
@@ -66,6 +92,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         accountEmailCheckerService,
         passwordHashProviderService,
         nickname: '#name',
+        nicknameUniqueCheckerService,
       }),
     ).rejects.toThrowError(
       'Provided password is not strong enough. Provide password with minimum one digit.',
@@ -73,6 +100,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
   });
 
   test('should throw an error if password requires min 6 characters', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(true);
 
     await expect(() =>
@@ -82,6 +110,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         accountEmailCheckerService,
         passwordHashProviderService,
         nickname: '#name',
+        nicknameUniqueCheckerService,
       }),
     ).rejects.toThrowError(
       'Provided password is not strong enough. Provide at least 6 characters.',
@@ -89,6 +118,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
   });
 
   test('should throw an error if password has more than 50 characters', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(true);
 
     await expect(() =>
@@ -98,6 +128,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         accountEmailCheckerService,
         passwordHashProviderService,
         nickname: '#name',
+        nicknameUniqueCheckerService,
       }),
     ).rejects.toThrowError(
       'Provided password is not strong enough. Password can contain max of 50 characters.',
@@ -105,6 +136,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
   });
 
   test('should register new account and dispatch domain event', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(true);
 
     const account = await AccountRegistration.registerNew({
@@ -113,6 +145,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
       accountEmailCheckerService,
       passwordHashProviderService,
       nickname: '#name',
+      nicknameUniqueCheckerService,
     });
 
     expect(account.getDomainEvents()[0] instanceof NewAccountRegisteredEvent).toBeTruthy();
@@ -122,6 +155,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
   });
 
   test('should thrown an error if account status is not supported', async () => {
+    nicknameUniqueCheckerService.isUnique.mockResolvedValue(true);
     accountEmailCheckerService.isUnique.mockResolvedValue(true);
 
     expect(() =>
