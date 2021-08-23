@@ -4,11 +4,13 @@ import {
   NewAccountRegisteredEventPayload,
   NEW_ACCOUNT_REGISTERED_EVENT,
 } from '@root/modules/platform-access/core/account-registration/events/new-account-registered.event';
+import { VerificationCodeProviderService } from '@root/modules/platform-access/core/services/verification-code-provider.service';
 import { TokenProviderService } from '@root/modules/shared/infrastructure/token-provider/token-provider.service';
 
 interface Dependencies {
   mailerService: MailerService;
   tokenProviderService: TokenProviderService;
+  verificationCodeProviderService: VerificationCodeProviderService;
 }
 
 export class NewAccontRegisteredSubscriber extends DomainSubscriber<NewAccountRegisteredEventPayload> {
@@ -17,13 +19,15 @@ export class NewAccontRegisteredSubscriber extends DomainSubscriber<NewAccountRe
   }
 
   public async handle({ email }: NewAccountRegisteredEventPayload) {
-    const { mailerService, tokenProviderService } = this.dependencies;
+    const { mailerService, tokenProviderService, verificationCodeProviderService } =
+      this.dependencies;
 
     const confirmToken = tokenProviderService.generateToken({ userEmail: email }, '48h');
 
     await mailerService.sendMail({
       payload: {
         link: `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/confirm-email?token=${confirmToken}`,
+        activationCode: verificationCodeProviderService.generateEmailVerificationCode(),
       },
       subject: 'Welcome',
       template: 'welcome',
