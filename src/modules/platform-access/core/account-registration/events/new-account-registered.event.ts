@@ -2,6 +2,9 @@ import { DomainEvent } from '@root/framework/ddd-building-blocks/domain-event';
 
 export interface NewAccountRegisteredEventPayload {
   email: string;
+  activationCode: string;
+  generatedAt: string;
+  accountId: string;
 }
 
 export const NEW_ACCOUNT_REGISTERED_EVENT = 'platform_access.user_registered';

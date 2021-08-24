@@ -3,6 +3,7 @@ import { PasswordHashProviderService } from '@root/modules/shared/core/account-p
 import { AccountStatus } from '@root/modules/shared/core/account-status/account-status.value-object';
 import { createMockProxy } from '@tools/mock-proxy';
 import { NicknameUniqueCheckerService } from '../services/nickname-unique-checker.service';
+import { VerificationCodeProviderService } from '../services/verification-code-provider.service';
 import { AccountRegistration } from './account-registration.aggregate-root';
 import { NewAccountRegisteredEvent } from './events/new-account-registered.event';
 
@@ -10,11 +11,13 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
   const accountEmailCheckerService = createMockProxy<AccountEmailCheckerService>();
   const passwordHashProviderService = createMockProxy<PasswordHashProviderService>();
   const nicknameUniqueCheckerService = createMockProxy<NicknameUniqueCheckerService>();
+  const verificationCodeProviderService = createMockProxy<VerificationCodeProviderService>();
 
   beforeEach(() => {
     accountEmailCheckerService.mockClear();
     passwordHashProviderService.mockClear();
     nicknameUniqueCheckerService.mockClear();
+    verificationCodeProviderService.mockClear();
   });
 
   test('should throw an error when nickname is not unique', async () => {
@@ -28,6 +31,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError('Provided nickname is already taken. Please use different one.');
   });
@@ -43,6 +47,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError('Provided email format is not valid.');
   });
@@ -59,6 +64,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError('Provided email address is already in use.');
   });
@@ -75,6 +81,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError(
       'Provided email domain is not supported. Please use supported domain: gmail.com',
@@ -93,6 +100,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError(
       'Provided password is not strong enough. Provide password with minimum one digit.',
@@ -111,6 +119,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError(
       'Provided password is not strong enough. Provide at least 6 characters.',
@@ -129,6 +138,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
         passwordHashProviderService,
         nickname: '#name',
         nicknameUniqueCheckerService,
+        verificationCodeProviderService,
       }),
     ).rejects.toThrowError(
       'Provided password is not strong enough. Password can contain max of 50 characters.',
@@ -146,6 +156,7 @@ describe('[DOMAIN] Platform Access/Account Registration', () => {
       passwordHashProviderService,
       nickname: '#name',
       nicknameUniqueCheckerService,
+      verificationCodeProviderService,
     });
 
     expect(account.getDomainEvents()[0] instanceof NewAccountRegisteredEvent).toBeTruthy();
