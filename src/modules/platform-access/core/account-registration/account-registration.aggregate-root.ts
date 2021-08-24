@@ -7,6 +7,7 @@ import { PasswordHashProviderService } from '@root/modules/shared/core/account-p
 import { AccountStatus } from '@root/modules/shared/core/account-status/account-status.value-object';
 import { NicknameIsNotUniqueError } from '../../errors/nickanme-is-not-unique.error';
 import { NicknameUniqueCheckerService } from '../services/nickname-unique-checker.service';
+import { VerificationCodeProviderService } from '../services/verification-code-provider.service';
 import { NewAccountRegisteredEvent } from './events/new-account-registered.event';
 import { NicknameMustBeUniqueRule } from './rules/nickname-must-be-unique.rule';
 
@@ -36,6 +37,7 @@ interface RegisterNewAccountData {
   accountEmailCheckerService: AccountEmailCheckerService;
   passwordHashProviderService: PasswordHashProviderService;
   nicknameUniqueCheckerService: NicknameUniqueCheckerService;
+  verificationCodeProviderService: VerificationCodeProviderService;
 }
 
 export class AccountRegistration extends AggregateRoot<AccountRegistrationProps> {
@@ -50,6 +52,7 @@ export class AccountRegistration extends AggregateRoot<AccountRegistrationProps>
     accountEmailCheckerService,
     passwordHashProviderService,
     nicknameUniqueCheckerService,
+    verificationCodeProviderService,
   }: RegisterNewAccountData) {
     await AccountRegistration.checkRule(
       new NicknameMustBeUniqueRule(nickname, nicknameUniqueCheckerService),
@@ -65,7 +68,16 @@ export class AccountRegistration extends AggregateRoot<AccountRegistrationProps>
       status: AccountStatus.WaitingForEmailConfirmation,
     });
 
-    account.addDomainEvent(new NewAccountRegisteredEvent({ email }));
+    const code = verificationCodeProviderService.generateEmailVerificationCode();
+
+    account.addDomainEvent(
+      new NewAccountRegisteredEvent({
+        email,
+        accountId: account.id.getValue(),
+        activationCode: code,
+        generatedAt: new Date().toISOString(),
+      }),
+    );
 
     return account;
   }

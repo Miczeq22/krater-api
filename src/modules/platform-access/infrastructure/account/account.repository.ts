@@ -36,7 +36,9 @@ export class AccountRepositoryImpl implements AccountRepository {
     return Account.fromPersistence(record);
   }
 
-  private static toRecord(account: Account): PersistedAccount {
+  private static toRecord(
+    account: Account,
+  ): Omit<PersistedAccount, 'verificationCodeProviderService'> {
     return {
       id: account.getId().getValue(),
       status: account.getStatus(),
