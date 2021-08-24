@@ -3,15 +3,15 @@ import { CommandBus } from '@root/framework/processing/command-bus';
 import { ConfirmEmailAddressCommand } from '@root/modules/platform-access/app/commands/confirm-email-address/confirm-email-address.command';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { NextFunction, Request, Response } from 'express-serve-static-core';
-import { ApiOperationGet, ApiPath } from 'swagger-express-ts';
+import { ApiOperationPatch, ApiPath } from 'swagger-express-ts';
 
 interface Dependencies {
   commandBus: CommandBus;
 }
 
 export const confirmEmailAddressActionValidation = celebrate({
-  [Segments.QUERY]: {
-    token: Joi.string().required(),
+  [Segments.BODY]: {
+    activationCode: Joi.string().required(),
   },
 });
 
@@ -22,15 +22,20 @@ export const confirmEmailAddressActionValidation = celebrate({
 class ConfirmEmailAddressHttpAction implements HttpAction {
   constructor(private readonly dependencies: Dependencies) {}
 
-  @ApiOperationGet({
+  @ApiOperationPatch({
     path: 'confirm-email',
     description: 'Confirm email endpoint',
     summary: 'Allows to confirm email address.',
+    security: {
+      bearer: [],
+    },
     parameters: {
-      query: {
-        token: {
-          type: 'string',
-          required: true,
+      body: {
+        properties: {
+          activationCode: {
+            type: 'string',
+            required: true,
+          },
         },
       },
     },
@@ -51,7 +56,12 @@ class ConfirmEmailAddressHttpAction implements HttpAction {
   })
   public async invoke(req: Request, res: Response, next: NextFunction) {
     this.dependencies.commandBus
-      .handle(new ConfirmEmailAddressCommand(req.query.token as string))
+      .handle(
+        new ConfirmEmailAddressCommand({
+          ...req.body,
+          userId: res.locals.userId,
+        }),
+      )
       .then(() => res.sendStatus(204))
       .catch(next);
   }
