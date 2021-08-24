@@ -2,7 +2,6 @@ import { UnauthenticatedError } from '@errors/unauthenticated.error';
 import { CommandHandler } from '@root/framework/processing/command-handler';
 import { TransactionalOperation } from '@root/framework/transactional-operation';
 import { AccountRepository } from '@root/modules/platform-access/core/account/account.repository';
-import { TokenProviderService } from '@root/modules/shared/infrastructure/token-provider/token-provider.service';
 import {
   ConfirmEmailAddressCommand,
   CONFIRM_EMAIL_ADDRESS_COMMAND,
@@ -10,7 +9,6 @@ import {
 
 interface Dependencies {
   accountRepository: AccountRepository;
-  tokenProviderService: TokenProviderService;
   performTransactionalOperation: TransactionalOperation;
 }
 
@@ -19,19 +17,16 @@ export class ConfirmEmailAddressCommandHandler extends CommandHandler<ConfirmEma
     super(CONFIRM_EMAIL_ADDRESS_COMMAND);
   }
 
-  public async handle({ payload: { token } }: ConfirmEmailAddressCommand) {
-    const { accountRepository, tokenProviderService, performTransactionalOperation } =
-      this.dependencies;
+  public async handle({ payload: { activationCode, userId } }: ConfirmEmailAddressCommand) {
+    const { accountRepository, performTransactionalOperation } = this.dependencies;
 
-    const { userEmail } = tokenProviderService.verifyAndDecodeToken<{ userEmail: string }>(token);
-
-    const account = await accountRepository.findByEmail(userEmail);
+    const account = await accountRepository.findById(userId);
 
     if (!account) {
       throw new UnauthenticatedError();
     }
 
-    account.confirmEmailAddress();
+    account.confirmEmailAddress(activationCode);
 
     await performTransactionalOperation(accountRepository.update.bind(this), account);
   }

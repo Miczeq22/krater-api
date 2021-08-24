@@ -2,6 +2,7 @@ import { AvailableDatabaseTable } from '@infrastructure/database/available-table
 import { QueryBuilder } from '@infrastructure/database/query-builder';
 import { Account, PersistedAccount } from '../../core/account/account.aggregate-root';
 import { AccountRepository } from '../../core/account/account.repository';
+import { ActivationCodeStatusValue } from '../../core/activation-code-status/activation-code-status.value-object';
 
 interface Dependencies {
   queryBuilder: QueryBuilder;
@@ -10,16 +11,27 @@ interface Dependencies {
 export class AccountRepositoryImpl implements AccountRepository {
   constructor(private readonly dependencies: Dependencies) {}
 
-  public async findByEmail(email: string) {
+  public async findById(id: string) {
     const { queryBuilder } = this.dependencies;
 
     const result = await queryBuilder
       .select(['id', 'status'])
-      .where('email', email)
+      .where('id', id)
       .from(AvailableDatabaseTable.ACCOUNT_REGISTRATION)
       .first();
 
-    return result ? AccountRepositoryImpl.toEntity(result) : null;
+    if (!result) {
+      return null;
+    }
+
+    const codeResult = await queryBuilder
+      .select('code')
+      .where('account_id', result.id)
+      .andWhere('status', ActivationCodeStatusValue.Active)
+      .from(AvailableDatabaseTable.ACCOUNT_ACTIVATION_CODE)
+      .first();
+
+    return AccountRepositoryImpl.toEntity({ ...result, activationCode: codeResult.code });
   }
 
   public async update(account: Account) {
@@ -38,7 +50,7 @@ export class AccountRepositoryImpl implements AccountRepository {
 
   private static toRecord(
     account: Account,
-  ): Omit<PersistedAccount, 'verificationCodeProviderService'> {
+  ): Omit<PersistedAccount, 'verificationCodeProviderService' | 'activationCode'> {
     return {
       id: account.getId().getValue(),
       status: account.getStatus(),

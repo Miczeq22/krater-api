@@ -4,14 +4,17 @@ import { AccountStatus } from '@root/modules/shared/core/account-status/account-
 import { VerificationCodeProviderService } from '../services/verification-code-provider.service';
 import { EmailVerificationCodeGeneratedEvent } from './events/email-verification-code-generated.event';
 import { AccountEmailMustNotBeConfirmedAlreadyRule } from './rules/account-email-must-not-be-confirmed-already.rule';
+import { ActivationCodeMustBeValidRule } from './rules/activation-code-must-be-valid.rule';
 
 interface AccountProps {
   status: AccountStatus;
+  activationCode: string;
 }
 
 export interface PersistedAccount {
   id: string;
   status: string;
+  activationCode: string;
   verificationCodeProviderService: VerificationCodeProviderService;
 }
 
@@ -22,9 +25,14 @@ export class Account extends AggregateRoot<AccountProps> {
     super(props, id);
   }
 
-  public static fromPersistence({ id, status, verificationCodeProviderService }: PersistedAccount) {
+  public static fromPersistence({
+    id,
+    status,
+    verificationCodeProviderService,
+    activationCode,
+  }: PersistedAccount) {
     const account = new Account(
-      { status: AccountStatus.fromValue(status) },
+      { activationCode, status: AccountStatus.fromValue(status) },
       new UniqueEntityID(id),
     );
 
@@ -38,6 +46,8 @@ export class Account extends AggregateRoot<AccountProps> {
 
     const code = this.verificationCodeProviderService.generateEmailVerificationCode();
 
+    this.props.activationCode = code;
+
     this.addDomainEvent(
       new EmailVerificationCodeGeneratedEvent({
         accountId: this.id.getValue(),
@@ -49,13 +59,18 @@ export class Account extends AggregateRoot<AccountProps> {
     return code;
   }
 
-  public confirmEmailAddress() {
+  public confirmEmailAddress(activationCode: string) {
     Account.checkRule(new AccountEmailMustNotBeConfirmedAlreadyRule(this.props.status));
+    Account.checkRule(new ActivationCodeMustBeValidRule(this.props.activationCode, activationCode));
 
     this.props.status = AccountStatus.EmailConfirmed;
   }
 
   public getStatus() {
     return this.props.status.getValue();
+  }
+
+  public getActivationCode() {
+    return this.props.activationCode;
   }
 }
