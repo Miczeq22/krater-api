@@ -7,7 +7,7 @@ interface Payload {
 }
 
 export const EMAIL_VERIFICATION_CODE_GENERATED_EVENT =
-  'platform-access/email-verification-code-generated';
+  'platform_access.email_verification_code_generated';
 
 export class EmailVerificationCodeGeneratedEvent extends DomainEvent<Payload> {
   constructor(payload: Payload) {
