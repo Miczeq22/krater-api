@@ -4,17 +4,28 @@
       "connection": {
         "url": "amqp://guest:guest@localhost:5672/"
       },
-      "exchanges": ["social_aggregation_ddd"],
+      "exchanges": ["krater"],
       "queues": ["platform_access"],
-      "bindings": ["social_aggregation_ddd[user_registered] -> platform_access"],
+      "bindings": [
+        "krater[user_registered] -> platform_access",
+        "krater[email_verification_code_generated] -> platform_access"
+      ],
       "publications": {
         "platform_access.user_registered": {
-          "exchange": "social_aggregation_ddd",
+          "exchange": "krater",
           "routingKey": "user_registered"
+        },
+        "platform_access.email_verification_code_generated": {
+          "exchange": "krater",
+          "routingKey": "email_verification_code_generated"
         }
       },
       "subscriptions": {
         "platform_access.user_registered": {
+          "queue": "platform_access",
+          "prefetch": 3
+        },
+        "platform_access.email_verification_code_generated": {
           "queue": "platform_access",
           "prefetch": 3
         }
