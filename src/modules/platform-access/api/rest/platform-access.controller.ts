@@ -2,11 +2,13 @@ import { Controller } from '@root/framework/api/controller';
 import { HttpAction } from '@root/framework/api/http-action';
 import { RequestHandler, Router } from 'express';
 import { confirmEmailAddressActionValidation } from './confirm-email-address/confirm-email-address.http-action';
+import { loginActionValidation } from './login/login.http-action';
 import { registerNewAccountActionValidation } from './register-new-account/register-new-account.http-action';
 
 interface Dependencies {
   registerNewAccountHttpAction: HttpAction;
   confirmEmailAddressHttpAction: HttpAction;
+  loginHttpAction: HttpAction;
   authMiddleware: RequestHandler;
 }
 
@@ -27,6 +29,11 @@ export class PlatformAccessController extends Controller {
       this.dependencies.authMiddleware,
       confirmEmailAddressActionValidation,
       this.dependencies.confirmEmailAddressHttpAction.invoke.bind(this),
+    ]);
+
+    router.post('/login', [
+      loginActionValidation,
+      this.dependencies.loginHttpAction.invoke.bind(this),
     ]);
 
     return router;
