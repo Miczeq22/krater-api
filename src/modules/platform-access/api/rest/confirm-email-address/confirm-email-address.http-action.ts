@@ -27,7 +27,7 @@ class ConfirmEmailAddressHttpAction implements HttpAction {
     description: 'Confirm email endpoint',
     summary: 'Allows to confirm email address.',
     security: {
-      bearer: [],
+      bearerAuth: [],
     },
     parameters: {
       body: {
