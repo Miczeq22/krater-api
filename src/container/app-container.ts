@@ -15,11 +15,13 @@ import {
 } from 'awilix';
 import { postgresQueryBuilder } from '@infrastructure/database/query-builder';
 import { authMiddleware } from '@api/middlewares/auth/auth.middleware';
+import { QueryBus } from '@root/framework/processing/query-bus';
 import { registerControllers } from './controllers';
 import { registerServices } from './services';
 import { registerRepositories } from './repositories';
 import { registerCommandHandlers } from './command-handlers';
 import { registerSubscribers } from './subscribers';
+import { registerQueryHandlers } from './query-handlers';
 
 export const createAppContainer = async (): Promise<AwilixContainer> => {
   const config = rascal.withDefaultConfig(definitions);
@@ -32,6 +34,7 @@ export const createAppContainer = async (): Promise<AwilixContainer> => {
   container.register({
     logger: asValue(logger),
     commandBus: asClass(CommandBus).singleton(),
+    queryBus: asClass(QueryBus).singleton(),
     queryBuilder: asValue(postgresQueryBuilder()),
     rascalBroker: asValue(rascalBroker),
     performTransactionalOperation: asFunction(performTransactionalOperation).scoped(),
@@ -49,6 +52,8 @@ export const createAppContainer = async (): Promise<AwilixContainer> => {
   registerSubscribers(container);
 
   registerCommandHandlers(container);
+
+  registerQueryHandlers(container);
 
   registerControllers(container);
 
