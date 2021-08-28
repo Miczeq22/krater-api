@@ -1,29 +1,27 @@
 import { AvailableDatabaseTable } from '@infrastructure/database/available-tables';
-import { QueryBuilder } from '@infrastructure/database/query-builder';
+import { DatabaseTransaction } from '@infrastructure/database/database-transaction';
+import { DomainEvents } from '@infrastructure/message-queue/in-memory/in-memory-message-queue.service';
 import { DomainSubscriber } from '@root/framework/ddd-building-blocks/domain-subscriber';
 import { UniqueEntityID } from '@root/framework/unique-entity-id';
 import {
-  EmailVerificationCodeGeneratedEvent,
+  EmailVerificationCodeGeneratedEventPayload,
   EMAIL_VERIFICATION_CODE_GENERATED_EVENT,
 } from '@root/modules/platform-access/core/account/events/email-verification-code-generated.event';
 import { ActivationCodeStatus } from '@root/modules/platform-access/core/activation-code-status/activation-code-status.value-object';
 
-interface Dependencies {
-  queryBuilder: QueryBuilder;
-}
-
-export class EmailVerificationCodeGeneratedSubscriber extends DomainSubscriber<EmailVerificationCodeGeneratedEvent> {
-  constructor(private readonly dependencies: Dependencies) {
+export class EmailVerificationCodeGeneratedSubscriber extends DomainSubscriber<EmailVerificationCodeGeneratedEventPayload> {
+  constructor() {
     super(EMAIL_VERIFICATION_CODE_GENERATED_EVENT);
   }
 
-  public async handle({
-    payload: { accountId, activationCode, generatedAt },
-  }: EmailVerificationCodeGeneratedEvent) {
-    const { queryBuilder } = this.dependencies;
+  public setup() {
+    DomainEvents.register(this.handle.bind(this), this.name);
+  }
 
-    const trx = await queryBuilder.transaction();
-
+  public async handle(
+    { accountId, activationCode, generatedAt }: EmailVerificationCodeGeneratedEventPayload,
+    trx: DatabaseTransaction,
+  ) {
     try {
       await trx
         .update({

@@ -24,6 +24,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     expect(() => account.generateActivationCode()).toThrowError(
@@ -41,6 +43,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     expect(account.generateActivationCode()).toEqual('4321');
@@ -58,6 +62,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     expect(() => account.confirmEmailAddress('4321')).toThrowError(
@@ -73,6 +79,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     expect(() => account.confirmEmailAddress('1234')).toThrowError(
@@ -88,6 +96,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     account.confirmEmailAddress('1234');
@@ -105,6 +115,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     await expect(account.login('#invalid-password')).rejects.toThrowError(
@@ -122,6 +134,8 @@ describe('[DOMAIN] Platform Access/Account', () => {
       verificationCodeProviderService,
       password: '#password-hash',
       passwordHashProviderService,
+      email: 'john@gmail.com',
+      email_confirmation_date: new Date().toISOString(),
     });
 
     await account.login('#valid-password');

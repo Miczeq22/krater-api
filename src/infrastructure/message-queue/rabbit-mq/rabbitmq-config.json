@@ -8,7 +8,8 @@
       "queues": ["platform_access"],
       "bindings": [
         "krater[user_registered] -> platform_access",
-        "krater[email_verification_code_generated] -> platform_access"
+        "krater[email_verification_code_generated] -> platform_access",
+        "krater[confirmation_code_has_been_resent] -> platform_access"
       ],
       "publications": {
         "platform_access.user_registered": {
@@ -18,6 +19,10 @@
         "platform_access.email_verification_code_generated": {
           "exchange": "krater",
           "routingKey": "email_verification_code_generated"
+        },
+        "platform_access.confirmation_code_has_been_resent": {
+          "exchange": "krater",
+          "routingKey": "confirmation_code_has_been_resent"
         }
       },
       "subscriptions": {
@@ -26,6 +31,10 @@
           "prefetch": 3
         },
         "platform_access.email_verification_code_generated": {
+          "queue": "platform_access",
+          "prefetch": 3
+        },
+        "platform_access.confirmation_code_has_been_resent": {
           "queue": "platform_access",
           "prefetch": 3
         }
