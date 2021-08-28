@@ -8,7 +8,6 @@ import { AccountStatus } from '@root/modules/shared/core/account-status/account-
 import { VerificationCodeProviderService } from '../services/verification-code-provider.service';
 import { ConfirmationCodeHasBeenResentEvent } from './events/confirmation-code-has-been-resent.event';
 import { EmailVerificationCodeGeneratedEvent } from './events/email-verification-code-generated.event';
-import { UserLoggedInEvent } from './events/user-logged-in.event';
 import { AccountEmailMustNotBeConfirmedAlreadyRule } from './rules/account-email-must-not-be-confirmed-already.rule';
 import { ActivationCodeMustBeValidRule } from './rules/activation-code-must-be-valid.rule';
 import { PasswordMustBeValidRule } from './rules/password-must-be-valid.rule';
@@ -110,8 +109,6 @@ export class Account extends AggregateRoot<AccountProps> {
       new PasswordMustBeValidRule(this.props.password, password, this.passwordHashProviderService),
       UnauthorizedError,
     );
-
-    this.addDomainEvent(new UserLoggedInEvent({ userId: this.id.getValue() }));
   }
 
   public getStatus() {

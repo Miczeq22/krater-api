@@ -1,3 +1,9 @@
+export enum DomainEventStatusValue {
+  Processing = 'Processing',
+  Completed = 'Completed',
+  Failed = 'Failed',
+}
+
 export abstract class DomainEvent<PayloadType extends object> {
   private occuredOn: Date;
 
