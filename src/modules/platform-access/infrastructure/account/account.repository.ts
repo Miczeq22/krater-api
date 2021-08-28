@@ -20,7 +20,7 @@ export class AccountRepositoryImpl implements AccountRepository {
       this.dependencies;
 
     const result = await queryBuilder
-      .select(['id', 'status', 'password'])
+      .select(['email', 'id', 'status', 'password'])
       .where('id', id)
       .from(AvailableDatabaseTable.ACCOUNT_REGISTRATION)
       .first();
@@ -49,7 +49,7 @@ export class AccountRepositoryImpl implements AccountRepository {
       this.dependencies;
 
     const result = await queryBuilder
-      .select(['id', 'status', 'password'])
+      .select(['email', 'id', 'status', 'password'])
       .where('email', email)
       .from(AvailableDatabaseTable.ACCOUNT_REGISTRATION)
       .first();
@@ -95,10 +95,12 @@ export class AccountRepositoryImpl implements AccountRepository {
     | 'activationCode'
     | 'password'
     | 'passwordHashProviderService'
+    | 'email'
   > {
     return {
       id: account.getId().getValue(),
       status: account.getStatus(),
+      email_confirmation_date: account.getEmailConfirmationDate()?.toISOString() ?? null,
     };
   }
 }

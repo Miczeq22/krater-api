@@ -12,6 +12,7 @@ interface Dependencies {
   loginHttpAction: HttpAction;
   authMiddleware: RequestHandler;
   getAccountDataHttpAction: HttpAction;
+  resendConfirmationCodeHttpAction: HttpAction;
 }
 
 @ApiPath({
@@ -165,11 +166,35 @@ export class PlatformAccessController extends Controller {
     ]);
   }
 
+  @ApiOperationPost({
+    path: 'resend-confirmation-code',
+    summary: 'Resend email confirmation code',
+    security: {
+      bearerAuth: [],
+    },
+    parameters: {},
+    responses: {
+      200: {
+        description: 'Account data provided successfuly',
+      },
+      401: {
+        description: 'Unauthorized.',
+      },
+    },
+  })
+  private resendConfirmationCode() {
+    this.router.post('/resend-confirmation-code', [
+      this.dependencies.authMiddleware,
+      this.dependencies.resendConfirmationCodeHttpAction.invoke.bind(this),
+    ]);
+  }
+
   public getRouter() {
     this.register();
     this.confirmEmail();
     this.login();
     this.accountData();
+    this.resendConfirmationCode();
 
     return this.router;
   }

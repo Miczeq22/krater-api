@@ -1,6 +1,7 @@
 import { AvailableDatabaseTable } from '@infrastructure/database/available-tables';
-import { QueryBuilder } from '@infrastructure/database/query-builder';
+import { DatabaseTransaction } from '@infrastructure/database/database-transaction';
 import { MailerService } from '@infrastructure/mailer/mailer.service';
+import { DomainEvents } from '@infrastructure/message-queue/in-memory/in-memory-message-queue.service';
 import { DomainSubscriber } from '@root/framework/ddd-building-blocks/domain-subscriber';
 import { UniqueEntityID } from '@root/framework/unique-entity-id';
 import { AccountRegistrationRepository } from '@root/modules/platform-access/core/account-registration/account-registration.repository';
@@ -13,7 +14,6 @@ import { ActivationCodeStatus } from '@root/modules/platform-access/core/activat
 interface Dependencies {
   mailerService: MailerService;
   accountRegistration: AccountRegistrationRepository;
-  queryBuilder: QueryBuilder;
 }
 
 export class NewAccontRegisteredSubscriber extends DomainSubscriber<NewAccountRegisteredEventPayload> {
@@ -21,15 +21,17 @@ export class NewAccontRegisteredSubscriber extends DomainSubscriber<NewAccountRe
     super(NEW_ACCOUNT_REGISTERED_EVENT);
   }
 
-  public async handle({
-    email,
-    accountId,
-    activationCode,
-    generatedAt,
-  }: NewAccountRegisteredEventPayload) {
-    const { mailerService, queryBuilder } = this.dependencies;
+  public setup() {
+    DomainEvents.register(this.handle.bind(this), this.name);
+  }
 
-    await queryBuilder
+  public async handle(
+    { email, accountId, activationCode, generatedAt }: NewAccountRegisteredEventPayload,
+    trx: DatabaseTransaction,
+  ) {
+    const { mailerService } = this.dependencies;
+
+    await trx
       .insert({
         id: new UniqueEntityID().getValue(),
         account_id: accountId,

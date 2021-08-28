@@ -1,4 +1,5 @@
 import { NotFoundError } from '@errors/not-found.error';
+import { QueryBuilder } from '@infrastructure/database/query-builder';
 import { DomainSubscriber } from '@root/framework/ddd-building-blocks/domain-subscriber';
 import { Logger } from '@tools/logger';
 import rascal from 'rascal';
@@ -8,6 +9,7 @@ interface Dependencies {
   rascalBroker: rascal.BrokerAsPromised;
   logger: Logger;
   subscribers: DomainSubscriber<any>[];
+  queryBuilder: QueryBuilder;
 }
 
 export class RabbitMessageQueueServiceImpl implements MessageQueueService {
@@ -28,7 +30,7 @@ export class RabbitMessageQueueServiceImpl implements MessageQueueService {
   }
 
   public async consumeMessage(queueName: string) {
-    const { rascalBroker, logger } = this.dependencies;
+    const { rascalBroker, logger, queryBuilder } = this.dependencies;
 
     const existingSubscriber = this.dependencies.subscribers.find(
       (subscriber) => subscriber.name === queueName,
@@ -40,18 +42,24 @@ export class RabbitMessageQueueServiceImpl implements MessageQueueService {
 
     const subscription = await rascalBroker.subscribe(queueName);
 
+    const trx = await queryBuilder.transaction();
+
     subscription
       .on('message', async (message, content, ackOrNack) => {
         logger.info(
           `[Message Queue] Handling message for: "${message.fields.exchange}.${message.fields.routingKey}".`,
         );
 
-        await existingSubscriber.handle(JSON.parse(content.toString()));
+        await existingSubscriber.handle(JSON.parse(content.toString()), trx);
 
         ackOrNack();
+
+        await trx.commit();
       })
-      .on('error', (error) => {
+      .on('error', async (error) => {
         logger.error('Error on message queue subscriber.', error);
+
+        await trx.rollback();
       });
   }
 }

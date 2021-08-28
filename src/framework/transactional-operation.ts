@@ -1,13 +1,11 @@
 import { DatabaseTransaction } from '@infrastructure/database/database-transaction';
-import { MessageQueueService } from '@infrastructure/message-queue/message-queue.service';
+import { DomainEvents } from '@infrastructure/message-queue/in-memory/in-memory-message-queue.service';
 import { AggregateRoot } from './ddd-building-blocks/aggregate-root';
 
-interface Dependencies {
-  messageQueueService: MessageQueueService;
-}
+interface Dependencies {}
 
 export const performTransactionalOperation =
-  ({ messageQueueService }: Dependencies) =>
+  ({}: Dependencies) =>
   async <AggregateRootType extends AggregateRoot<unknown>>(
     operation: (aggregate: AggregateRootType) => Promise<DatabaseTransaction>,
     aggregate: AggregateRootType,
@@ -15,12 +13,7 @@ export const performTransactionalOperation =
     const trx = await operation(aggregate);
 
     try {
-      const events = aggregate.getDomainEvents();
-      const promises = events.map((event) =>
-        messageQueueService.produceMessage(event.name, event.payload),
-      );
-
-      await Promise.all(promises);
+      await DomainEvents.dispatchDomainEventsForAggregate(aggregate, trx);
 
       await trx.commit();
     } catch (error) {
