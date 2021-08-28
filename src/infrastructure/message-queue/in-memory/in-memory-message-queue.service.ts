@@ -2,8 +2,10 @@
 /* eslint-disable no-await-in-loop */
 
 import { DatabaseTransaction } from '@infrastructure/database/database-transaction';
+import { postgresQueryBuilder } from '@infrastructure/database/query-builder';
 import { AggregateRoot } from '@root/framework/ddd-building-blocks/aggregate-root';
-import { DomainEvent } from '@root/framework/ddd-building-blocks/domain-event';
+import { DomainEventStatusValue } from '@root/framework/ddd-building-blocks/domain-event';
+import { UniqueEntityID } from '@root/framework/unique-entity-id';
 import { logger } from '@tools/logger';
 
 export class DomainEvents {
@@ -29,10 +31,24 @@ export class DomainEvents {
       return;
     }
 
-    const promises = this.markedAggregatesMap
+    const eventsToPersist = this.markedAggregatesMap
       .get(key)!
       .getDomainEvents()
-      .map((event) => this.dispatch(event, trx));
+      .map((event) => ({
+        id: new UniqueEntityID().getValue(),
+        event_name: event.name,
+        aggregate_root: aggregate.constructor.name,
+        aggregate_root_id: aggregate.getId().getValue(),
+        occured_on: event.getOccuredOn().toISOString(),
+        status: DomainEventStatusValue.Processing,
+        payload: JSON.stringify(event.payload),
+      }));
+
+    await postgresQueryBuilder().insert(eventsToPersist).into('domain_event');
+
+    const promises = eventsToPersist.map((event) =>
+      this.dispatch(event.id, event.event_name, JSON.parse(event.payload), trx),
+    );
 
     aggregate.clearDomainEvents();
 
@@ -60,16 +76,40 @@ export class DomainEvents {
     this.markedAggregatesMap.clear();
   }
 
-  private static async dispatch(event: DomainEvent<any>, trx?: DatabaseTransaction) {
-    if (this.handlersMap.has(event.name)) {
-      const handlers = this.handlersMap.get(event.name);
+  private static async dispatch(
+    persistedEventId: string,
+    eventName: string,
+    payload: object,
+    trx?: DatabaseTransaction,
+  ) {
+    if (this.handlersMap.has(eventName)) {
+      const handlers = this.handlersMap.get(eventName);
 
       for (const handler of handlers!) {
         try {
-          await handler(event.payload, trx);
+          logger.info(`[Domain Events]: Handling event "${eventName}"`);
+          await handler(payload, trx);
+
+          await postgresQueryBuilder()
+            .update({
+              status: DomainEventStatusValue.Completed,
+            })
+            .where('id', persistedEventId)
+            .into('domain_event');
         } catch (error) {
-          logger.error(`Subscriber error occured on event: ${event.name} inside ${handler.name}`);
+          logger.error(
+            `[Domain Events]: Subscriber error occured on event: ${eventName} inside ${handler.name}`,
+          );
           logger.error(error.toString());
+
+          await postgresQueryBuilder()
+            .update({
+              status: DomainEventStatusValue.Failed,
+            })
+            .where('id', persistedEventId)
+            .into('domain_event');
+
+          throw error;
         }
       }
     }

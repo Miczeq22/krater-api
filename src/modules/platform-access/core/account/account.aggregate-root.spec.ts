@@ -6,7 +6,6 @@ import { createMockProxy } from '@tools/mock-proxy';
 import { VerificationCodeProviderService } from '../services/verification-code-provider.service';
 import { Account } from './account.aggregate-root';
 import { EmailVerificationCodeGeneratedEvent } from './events/email-verification-code-generated.event';
-import { UserLoggedInEvent } from './events/user-logged-in.event';
 
 describe('[DOMAIN] Platform Access/Account', () => {
   const verificationCodeProviderService = createMockProxy<VerificationCodeProviderService>();
@@ -138,8 +137,6 @@ describe('[DOMAIN] Platform Access/Account', () => {
       email_confirmation_date: new Date().toISOString(),
     });
 
-    await account.login('#valid-password');
-
-    expect(account.getDomainEvents()[0] instanceof UserLoggedInEvent).toBeTruthy();
+    await expect(account.login('#valid-password')).resolves.not.toThrowError();
   });
 });
