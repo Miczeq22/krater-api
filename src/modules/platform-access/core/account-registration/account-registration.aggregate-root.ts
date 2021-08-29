@@ -5,7 +5,7 @@ import { AccountEmail } from '@root/modules/shared/core/account-email/account-em
 import { AccountPassword } from '@root/modules/shared/core/account-password/account-password.value-object';
 import { PasswordHashProviderService } from '@root/modules/shared/core/account-password/password-hash-provider.service';
 import { AccountStatus } from '@root/modules/shared/core/account-status/account-status.value-object';
-import { NicknameIsNotUniqueError } from '../../errors/nickanme-is-not-unique.error';
+import { NicknameIsNotUniqueError } from '../../errors/nickname-is-not-unique.error';
 import { NicknameUniqueCheckerService } from '../services/nickname-unique-checker.service';
 import { VerificationCodeProviderService } from '../services/verification-code-provider.service';
 import { NewAccountRegisteredEvent } from './events/new-account-registered.event';
