@@ -15,7 +15,7 @@
     "no-underscore-dangle": "off",
     "no-useless-constructor": "off",
     "class-methods-use-this": "off",
-    "@typescript-eslint/quotes": ["error", "single"],
+    "@typescript-eslint/quotes": "off",
     "no-empty-interface": "off",
     "ordered-imports": "off",
     "object-literal-sort-keys": "off",

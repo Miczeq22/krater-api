@@ -16,6 +16,7 @@ import {
 import { postgresQueryBuilder } from '@infrastructure/database/query-builder';
 import { authMiddleware } from '@api/middlewares/auth/auth.middleware';
 import { QueryBus } from '@root/framework/processing/query-bus';
+import { isAccountConfirmedMiddleware } from '@api/middlewares/is-account-confirmed/is-account-confirmed.middleware';
 import { registerControllers } from './controllers';
 import { registerServices } from './services';
 import { registerRepositories } from './repositories';
@@ -39,6 +40,7 @@ export const createAppContainer = async (): Promise<AwilixContainer> => {
     rascalBroker: asValue(rascalBroker),
     performTransactionalOperation: asFunction(performTransactionalOperation).scoped(),
     authMiddleware: asFunction(authMiddleware).scoped(),
+    isAccountConfirmedMiddleware: asFunction(isAccountConfirmedMiddleware).scoped(),
   });
 
   container.loadModules(['src/**/**/**/**/**/*.http-action.ts'], {
