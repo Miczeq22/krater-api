@@ -1,5 +1,5 @@
 import { ValueObject } from '@root/framework/ddd-building-blocks/value-object';
-import { CatalogueFilterNotSupportedError } from '../../errors/catalogue-filter-not-supported.error';
+import { CatalogueFilterNotSupportedError } from '../../../errors/catalogue-filter-not-supported.error';
 
 export enum CatalogueFilterValue {
   Newest = 'Newest',

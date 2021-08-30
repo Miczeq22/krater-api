@@ -3,6 +3,7 @@ import { ResendConfirmationCodeCommandHandler } from '@root/modules/platform-acc
 import { ConfirmEmailAddressCommandHandler } from '@root/modules/platform-access/app/commands/confirm-email-address/confirm-email-address.command-handler';
 import { LoginCommandHandler } from '@root/modules/platform-access/app/commands/login/login.command-handler';
 import { RegisterNewAccountCommandHandler } from '@root/modules/platform-access/app/commands/register-new-account/register-new-account.command-handler';
+import { CreateNewArticleCommandHandler } from '@root/modules/home/app/commands/create-new-article/create-new-article.command-handler';
 import { asClass, AwilixContainer } from 'awilix';
 import { registerAsArray } from './register-as-array';
 
@@ -13,6 +14,7 @@ export const registerCommandHandlers = (container: AwilixContainer) => {
       asClass(ConfirmEmailAddressCommandHandler).singleton(),
       asClass(LoginCommandHandler).singleton(),
       asClass(ResendConfirmationCodeCommandHandler).singleton(),
+      asClass(CreateNewArticleCommandHandler).singleton(),
     ]),
   });
 };

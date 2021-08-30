@@ -1,5 +1,5 @@
 import { ValueObject } from '@root/framework/ddd-building-blocks/value-object';
-import { ArticleStatusNotSupportedError } from './errors/article-status-not-supported.error';
+import { ArticleStatusNotSupportedError } from '../../../errors/article-status-not-supported.error';
 
 export enum ArticleStatusValue {
   Active = 'Active',

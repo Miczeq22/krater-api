@@ -4,4 +4,5 @@ export enum AvailableDatabaseTable {
   ACCOUNT_ACTIVATION_CODE = 'public.account_activation_code',
   DOMAIN_EVENT = 'public.domain_event',
   EMAIL_SENT = 'public.email_sent',
+  ARTICLE = 'public.article',
 }

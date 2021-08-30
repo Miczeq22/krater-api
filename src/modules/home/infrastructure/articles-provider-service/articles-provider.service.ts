@@ -1,6 +1,6 @@
 import { QueryBuilder } from '@infrastructure/database/query-builder';
-import { CatalogueFilterValue } from '../../core/catalogue-filter/catalogue-filter.value-object';
-import { ArticlesProviderService } from '../../core/services/articles-provider.service';
+import { CatalogueFilterValue } from '../../core/catalogue/catalogue-filter/catalogue-filter.value-object';
+import { ArticlesProviderService } from '../../core/catalogue/services/articles-provider.service';
 
 interface Dependencies {
   queryBuilder: QueryBuilder;
