@@ -1,9 +1,15 @@
 {
   "git": {
-    "commitMessage": "🎉 release v${version}"
+    "commitMessage": "🎉 Release v${version}",
+    "commit": true,
+    "tag": true,
+    "tagAnnotation": "Release ${version}",
+    "push": true
   },
   "github": {
-    "release": true
+    "release": true,
+    "releaseName": "Release ${version}",
+    "tokenRef": "PRIVATE_REPOSITORIES_ACCESS_TOKEN"
   },
   "npm": {
     "publish": false
