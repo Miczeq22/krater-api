@@ -2,7 +2,6 @@ name: Release API Patch
 
 on:
   pull_request:
-    types: [closed]
     branches:
       - 'hotfix/**'
 
