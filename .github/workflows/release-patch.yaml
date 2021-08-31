@@ -3,7 +3,7 @@ name: Release API Patch
 on:
   pull_request:
     branches:
-      - 'hotfix/**'
+      - "hotfix/*"
 
 jobs:
   release:
