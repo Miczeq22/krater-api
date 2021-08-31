@@ -36,4 +36,10 @@ jobs:
           npm install
           npm run release -- patch --ci
 
+      - name: release minor
+        if: ${{ github.event.pull_request.merged }} && ${{contains(github.base_ref, 'feature')}}
+        run: |
+          npm install
+          npm run release -- minor --ci
+
 
