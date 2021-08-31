@@ -22,9 +22,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Configure git
+      - name: Configure git email
         run:
           git config --global user.email "mikoajw20@gmail.com"
+
+      - name: Configure git user name
+        run:
           git config --global user.name "Mikołaj Wargowski"
 
       - name: release patch
