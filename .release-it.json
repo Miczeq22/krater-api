@@ -4,7 +4,8 @@
     "commit": true,
     "tag": true,
     "tagAnnotation": "Release ${version}",
-    "push": true
+    "push": true,
+    "requireCleanWorkingDir": false
   },
   "github": {
     "release": true,
