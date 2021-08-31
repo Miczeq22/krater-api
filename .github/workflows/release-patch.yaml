@@ -22,6 +22,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Configure git
+        run:
+          git config --global user.email "mikoajw20@gmail.com"
+          git config --global user.name "Mikołaj Wargowski"
+
       - name: release patch
         if: ${{ github.event.pull_request.merged }} && ${{contains(github.base_ref, 'hotfix')}}
         run: |
