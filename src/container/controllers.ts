@@ -1,5 +1,5 @@
 import { Controller } from '@root/framework/api/controller';
-import { ArticleController } from '@root/modules/home/api/rest/article.controller';
+import { ArticleController } from '@root/modules/articles/api/rest/article.controller';
 import { PlatformAccessController } from '@root/modules/platform-access/api/rest/platform-access.controller';
 import * as Awilix from 'awilix';
 import { asClass } from 'awilix';
