@@ -1,7 +1,7 @@
 import { CommandHandler } from '@root/framework/processing/command-handler';
 import { TransactionalOperation } from '@root/framework/transactional-operation';
-import { Article } from '@root/modules/home/core/article/article.aggregate-root';
-import { ArticleRepository } from '@root/modules/home/core/article/article.repository';
+import { Article } from '@root/modules/articles/core/article/article.aggregate-root';
+import { ArticleRepository } from '@root/modules/articles/core/article/article.repository';
 import { Logger } from '@tools/logger';
 import { CreateNewArticleCommand, CREATE_NEW_ARTICLE_COMMAND } from './create-new-article.command';
 

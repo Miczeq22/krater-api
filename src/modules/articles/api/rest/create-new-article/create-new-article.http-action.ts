@@ -1,6 +1,6 @@
 import { HttpAction } from '@root/framework/api/http-action';
 import { CommandBus } from '@root/framework/processing/command-bus';
-import { CreateNewArticleCommand } from '@root/modules/home/app/commands/create-new-article/create-new-article.command';
+import { CreateNewArticleCommand } from '@root/modules/articles/app/commands/create-new-article/create-new-article.command';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { NextFunction, Request, Response } from 'express';
 

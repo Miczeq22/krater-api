@@ -1,4 +1,4 @@
-import { ArticleRepositoryImpl } from '@root/modules/home/infrastructure/article/article.repository';
+import { ArticleRepositoryImpl } from '@root/modules/articles/infrastructure/article/article.repository';
 import { AccountRegistrationRepositoryImpl } from '@root/modules/platform-access/infrastructure/account-registration/account-registration.repository';
 import { AccountRepositoryImpl } from '@root/modules/platform-access/infrastructure/account/account.repository';
 import { asClass, AwilixContainer } from 'awilix';
