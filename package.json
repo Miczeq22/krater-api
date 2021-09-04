@@ -12,6 +12,7 @@
     "format": "prettier --write \"src/**/*\"",
     "build": "tsc -p tsconfig.build.json",
     "migration": "knex migrate:latest",
+    "seed": "knex seed:run",
     "release": "release-it"
   },
   "repository": {
@@ -35,6 +36,7 @@
     "@types/cors": "2.8.12",
     "@types/express": "4.17.13",
     "@types/express-enforces-ssl": "1.1.1",
+    "@types/faker": "5.5.8",
     "@types/glob": "7.1.4",
     "@types/handlebars": "4.1.0",
     "@types/helmet": "0.0.37",
@@ -55,6 +57,7 @@
     "eslint-plugin-import": "2.24.0",
     "eslint-plugin-prettier": "3.4.0",
     "eslint-plugin-unicorn": "35.0.0",
+    "faker": "5.5.3",
     "husky": "7.0.1",
     "jest": "27.0.6",
     "lint-staged": "11.1.2",

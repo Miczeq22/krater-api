@@ -48,7 +48,7 @@ export class Server {
     );
 
     this.app.use('*', (req, __, next) =>
-      next(new NotFoundError(`Route "${req.path}" does not exist.`)),
+      next(new NotFoundError(`Route "${req.originalUrl}" does not exist.`)),
     );
 
     this.app.use(errorHandlerMiddleware(this.dependencies.logger));
