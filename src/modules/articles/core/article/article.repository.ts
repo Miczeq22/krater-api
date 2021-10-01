@@ -4,5 +4,7 @@ import { Article } from './article.aggregate-root';
 export interface ArticleRepository {
   insert(article: Article): Promise<DatabaseTransaction>;
 
+  update(article: Article): Promise<DatabaseTransaction>;
+
   findById(id: string): Promise<Article | null>;
 }

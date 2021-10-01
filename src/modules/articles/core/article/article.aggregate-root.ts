@@ -1,8 +1,10 @@
 import { AggregateRoot } from '@root/framework/ddd-building-blocks/aggregate-root';
 import { UniqueEntityID } from '@root/framework/unique-entity-id';
+import { UpdateArticleDTO } from '../../dto/update-article.dto';
 import { ArticleStatus } from '../shared-kernel/article-status/article-status.value-object';
 import { ArticleContentMustHaveAtLeastTenCharactersRule } from './rules/article-content-must-have-at-least-ten-characters.rule';
 import { ArticleTitleMustHaveAtLeastThreeCharactersRule } from './rules/article-title-must-have-at-least-three-characters.rule';
+import { UserMustBeArticleOwnerRule } from './rules/user-must-be-article-owner.rule';
 
 interface ArticleProps {
   authorId: UniqueEntityID;
@@ -55,6 +57,36 @@ export class Article extends AggregateRoot<ArticleProps> {
       },
       new UniqueEntityID(id),
     );
+  }
+
+  public updateArticle({ content, title, userId }: Omit<UpdateArticleDTO, 'articleId'>) {
+    Article.checkRule(
+      new UserMustBeArticleOwnerRule(new UniqueEntityID(userId), this.props.authorId),
+    );
+
+    if (content !== undefined) {
+      Article.checkRule(new ArticleContentMustHaveAtLeastTenCharactersRule(content));
+
+      this.props.content = content;
+    }
+
+    if (title !== undefined) {
+      Article.checkRule(new ArticleTitleMustHaveAtLeastThreeCharactersRule(title));
+
+      this.props.title = title;
+    }
+  }
+
+  public getContent() {
+    return this.props.content;
+  }
+
+  public getTitle() {
+    return this.props.title;
+  }
+
+  public getPostedAt() {
+    return this.props.postedAt;
   }
 
   public toPersistence() {
