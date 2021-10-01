@@ -1,5 +1,6 @@
 import { AggregateRoot } from '@root/framework/ddd-building-blocks/aggregate-root';
 import { UniqueEntityID } from '@root/framework/unique-entity-id';
+import { ArchiveArticleDTO } from '../../dto/archive-article.dto';
 import { UpdateArticleDTO } from '../../dto/update-article.dto';
 import { ArticleStatus } from '../shared-kernel/article-status/article-status.value-object';
 import { ArticleContentMustHaveAtLeastTenCharactersRule } from './rules/article-content-must-have-at-least-ten-characters.rule';
@@ -77,6 +78,14 @@ export class Article extends AggregateRoot<ArticleProps> {
     }
   }
 
+  public archive({ userId }: Omit<ArchiveArticleDTO, 'articleId'>) {
+    Article.checkRule(
+      new UserMustBeArticleOwnerRule(new UniqueEntityID(userId), this.props.authorId),
+    );
+
+    this.props.status = ArticleStatus.Archived;
+  }
+
   public getContent() {
     return this.props.content;
   }
@@ -87,6 +96,10 @@ export class Article extends AggregateRoot<ArticleProps> {
 
   public getPostedAt() {
     return this.props.postedAt;
+  }
+
+  public getStatus() {
+    return this.props.status.getValue();
   }
 
   public toPersistence() {

@@ -6,6 +6,7 @@ import { RegisterNewAccountCommandHandler } from '@root/modules/platform-access/
 import { CreateNewArticleCommandHandler } from '@root/modules/articles/app/commands/create-new-article/create-new-article.command-handler';
 import { asClass, AwilixContainer } from 'awilix';
 import { UpdateArticleCommandHandler } from '@root/modules/articles/app/commands/update-article/update-article.command-handler';
+import { ArchiveArticleCommandHandler } from '@root/modules/articles/app/commands/archive-article/archive-article.command-handler';
 import { registerAsArray } from './register-as-array';
 
 export const registerCommandHandlers = (container: AwilixContainer) => {
@@ -17,6 +18,7 @@ export const registerCommandHandlers = (container: AwilixContainer) => {
       asClass(ResendConfirmationCodeCommandHandler).singleton(),
       asClass(CreateNewArticleCommandHandler).singleton(),
       asClass(UpdateArticleCommandHandler).singleton(),
+      asClass(ArchiveArticleCommandHandler).singleton(),
     ]),
   });
 };

@@ -41,6 +41,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
       .update({
         title: article.getTitle(),
         content: article.getContent(),
+        status: article.getStatus(),
       })
       .where('id', article.getId().getValue())
       .into(AvailableDatabaseTable.ARTICLE);

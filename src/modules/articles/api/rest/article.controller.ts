@@ -6,6 +6,7 @@ import { paginatedRequestActionValidation } from '@tools/pagination';
 import { createNewArticleActionValidation } from './create-new-article/create-new-article.http-action';
 import { getSingleArticleActionValidation } from './get-single-article/get-single-article.http-action';
 import { updateArticleActionValidation } from './update-article/update-article.http-action';
+import { archiveArticleActionValidation } from './archive-article/archive-article.http-action';
 
 interface Dependencies {
   authMiddleware: RequestHandler;
@@ -14,6 +15,7 @@ interface Dependencies {
   getAllArticlesHttpAction: HttpAction;
   getSingleArticleHttpAction: HttpAction;
   updateArticleHttpAction: HttpAction;
+  archiveArticleHttpAction: HttpAction;
 }
 
 @ApiPath({
@@ -155,11 +157,39 @@ export class ArticleController extends Controller {
     ]);
   }
 
+  private archiveArticle() {
+    this.router.patch('/:id/archive', [
+      this.dependencies.authMiddleware,
+      this.dependencies.isAccountConfirmedMiddleware,
+      archiveArticleActionValidation,
+      this.dependencies.archiveArticleHttpAction.invoke.bind(this),
+    ]);
+  }
+
+  @ApiOperationPatch({
+    path: '/{id}/archive',
+    security: {
+      bearerAuth: [],
+    },
+    parameters: {
+      path: {
+        id: {
+          type: 'string',
+          required: true,
+          format: 'uuid',
+        },
+      },
+    },
+    responses: {
+      204: {},
+    },
+  })
   public getRouter() {
     this.createArticle();
     this.getAllArticles();
     this.getSingleArticle();
     this.updateArticle();
+    this.archiveArticle();
 
     return this.router;
   }
