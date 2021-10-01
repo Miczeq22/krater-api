@@ -1,10 +1,11 @@
 import { RequestHandler, Router } from 'express';
 import { Controller } from '@root/framework/api/controller';
-import { ApiOperationGet, ApiOperationPost, ApiPath } from 'swagger-express-ts';
+import { ApiOperationGet, ApiOperationPatch, ApiOperationPost, ApiPath } from 'swagger-express-ts';
 import { HttpAction } from '@root/framework/api/http-action';
 import { paginatedRequestActionValidation } from '@tools/pagination';
 import { createNewArticleActionValidation } from './create-new-article/create-new-article.http-action';
 import { getSingleArticleActionValidation } from './get-single-article/get-single-article.http-action';
+import { updateArticleActionValidation } from './update-article/update-article.http-action';
 
 interface Dependencies {
   authMiddleware: RequestHandler;
@@ -12,6 +13,7 @@ interface Dependencies {
   createNewArticleHttpAction: HttpAction;
   getAllArticlesHttpAction: HttpAction;
   getSingleArticleHttpAction: HttpAction;
+  updateArticleHttpAction: HttpAction;
 }
 
 @ApiPath({
@@ -114,10 +116,50 @@ export class ArticleController extends Controller {
     ]);
   }
 
+  @ApiOperationPatch({
+    path: '/{id}',
+    security: {
+      bearerAuth: [],
+    },
+    parameters: {
+      path: {
+        id: {
+          type: 'string',
+          required: true,
+          format: 'uuid',
+        },
+      },
+      body: {
+        properties: {
+          title: {
+            type: 'string',
+            required: false,
+          },
+          content: {
+            type: 'string',
+            required: false,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {},
+    },
+  })
+  private updateArticle() {
+    this.router.patch('/:id', [
+      this.dependencies.authMiddleware,
+      this.dependencies.isAccountConfirmedMiddleware,
+      updateArticleActionValidation,
+      this.dependencies.updateArticleHttpAction.invoke.bind(this),
+    ]);
+  }
+
   public getRouter() {
     this.createArticle();
     this.getAllArticles();
     this.getSingleArticle();
+    this.updateArticle();
 
     return this.router;
   }

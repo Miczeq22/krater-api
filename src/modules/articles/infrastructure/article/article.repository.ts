@@ -33,4 +33,18 @@ export class ArticleRepositoryImpl implements ArticleRepository {
 
     return Article.fromPersistence(result);
   }
+
+  public async update(article: Article) {
+    const trx = await this.dependencies.queryBuilder.transaction();
+
+    await trx
+      .update({
+        title: article.getTitle(),
+        content: article.getContent(),
+      })
+      .where('id', article.getId().getValue())
+      .into(AvailableDatabaseTable.ARTICLE);
+
+    return trx;
+  }
 }
