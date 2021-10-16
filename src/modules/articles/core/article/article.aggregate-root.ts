@@ -1,9 +1,13 @@
 import { AggregateRoot } from '@root/framework/ddd-building-blocks/aggregate-root';
 import { UniqueEntityID } from '@root/framework/unique-entity-id';
 import { ArchiveArticleDTO } from '../../dto/archive-article.dto';
+import { CreateNewCommentDTO } from '../../dto/create-new-comment.dto';
 import { UpdateArticleDTO } from '../../dto/update-article.dto';
+import { Comment, PersistedComment } from '../comment/comment.entity';
 import { ArticleStatus } from '../shared-kernel/article-status/article-status.value-object';
+import { NewArticleCommentCreatedEvent } from './events/new-article-comment-created.event';
 import { ArticleContentMustHaveAtLeastTenCharactersRule } from './rules/article-content-must-have-at-least-ten-characters.rule';
+import { ArticleMustBeActiveRule } from './rules/article-must-be-active.rule';
 import { ArticleTitleMustHaveAtLeastThreeCharactersRule } from './rules/article-title-must-have-at-least-three-characters.rule';
 import { UserMustBeArticleOwnerRule } from './rules/user-must-be-article-owner.rule';
 
@@ -13,6 +17,7 @@ interface ArticleProps {
   content: string;
   postedAt: Date;
   status: ArticleStatus;
+  comments: Comment[];
 }
 
 export interface PersistedArticle {
@@ -22,6 +27,7 @@ export interface PersistedArticle {
   content: string;
   posted_at: string;
   status: string;
+  comments: PersistedComment[];
 }
 
 interface CreateNewArticlePayload {
@@ -45,22 +51,32 @@ export class Article extends AggregateRoot<ArticleProps> {
       authorId: new UniqueEntityID(authorId),
       postedAt: new Date(),
       status: ArticleStatus.Active,
+      comments: [],
     });
   }
 
-  public static fromPersistence({ author_id, posted_at, status, id, ...rest }: PersistedArticle) {
+  public static fromPersistence({
+    author_id,
+    posted_at,
+    status,
+    id,
+    comments,
+    ...rest
+  }: PersistedArticle) {
     return new Article(
       {
         ...rest,
         authorId: new UniqueEntityID(author_id),
         postedAt: new Date(posted_at),
         status: ArticleStatus.fromValue(status),
+        comments: comments.map(Comment.fromPersistence),
       },
       new UniqueEntityID(id),
     );
   }
 
   public updateArticle({ content, title, userId }: Omit<UpdateArticleDTO, 'articleId'>) {
+    Article.checkRule(new ArticleMustBeActiveRule(this.props.status));
     Article.checkRule(
       new UserMustBeArticleOwnerRule(new UniqueEntityID(userId), this.props.authorId),
     );
@@ -79,11 +95,35 @@ export class Article extends AggregateRoot<ArticleProps> {
   }
 
   public archive({ userId }: Omit<ArchiveArticleDTO, 'articleId'>) {
+    Article.checkRule(new ArticleMustBeActiveRule(this.props.status));
     Article.checkRule(
       new UserMustBeArticleOwnerRule(new UniqueEntityID(userId), this.props.authorId),
     );
 
     this.props.status = ArticleStatus.Archived;
+  }
+
+  public addComment({ authorId, content }: Omit<CreateNewCommentDTO, 'articleId'>) {
+    Article.checkRule(new ArticleMustBeActiveRule(this.props.status));
+
+    const comment = Comment.createNew({ authorId });
+
+    this.props.comments.push(comment);
+
+    this.addDomainEvent(
+      new NewArticleCommentCreatedEvent({
+        authorId,
+        content,
+        commentId: comment.getId().getValue(),
+        articleId: this.id.getValue(),
+      }),
+    );
+
+    return {
+      id: comment.getId().getValue(),
+      content,
+      authorId,
+    };
   }
 
   public getContent() {

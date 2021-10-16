@@ -7,6 +7,7 @@ import { createNewArticleActionValidation } from './create-new-article/create-ne
 import { getSingleArticleActionValidation } from './get-single-article/get-single-article.http-action';
 import { updateArticleActionValidation } from './update-article/update-article.http-action';
 import { archiveArticleActionValidation } from './archive-article/archive-article.http-action';
+import { createNewCommentActionValidation } from './create-new-comment/create-new-comment.http-action';
 
 interface Dependencies {
   authMiddleware: RequestHandler;
@@ -16,6 +17,7 @@ interface Dependencies {
   getSingleArticleHttpAction: HttpAction;
   updateArticleHttpAction: HttpAction;
   archiveArticleHttpAction: HttpAction;
+  createNewCommentHttpAction: HttpAction;
 }
 
 @ApiPath({
@@ -157,15 +159,6 @@ export class ArticleController extends Controller {
     ]);
   }
 
-  private archiveArticle() {
-    this.router.patch('/:id/archive', [
-      this.dependencies.authMiddleware,
-      this.dependencies.isAccountConfirmedMiddleware,
-      archiveArticleActionValidation,
-      this.dependencies.archiveArticleHttpAction.invoke.bind(this),
-    ]);
-  }
-
   @ApiOperationPatch({
     path: '/{id}/archive',
     security: {
@@ -184,12 +177,56 @@ export class ArticleController extends Controller {
       204: {},
     },
   })
+  private archiveArticle() {
+    this.router.patch('/:id/archive', [
+      this.dependencies.authMiddleware,
+      this.dependencies.isAccountConfirmedMiddleware,
+      archiveArticleActionValidation,
+      this.dependencies.archiveArticleHttpAction.invoke.bind(this),
+    ]);
+  }
+
+  @ApiOperationPost({
+    path: '/{id}/comments',
+    security: {
+      bearerAuth: [],
+    },
+    parameters: {
+      path: {
+        id: {
+          type: 'string',
+          required: true,
+        },
+      },
+      body: {
+        properties: {
+          content: {
+            type: 'string',
+            required: true,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {},
+    },
+  })
+  private addComment() {
+    this.router.post('/:id/comments', [
+      this.dependencies.authMiddleware,
+      this.dependencies.isAccountConfirmedMiddleware,
+      createNewCommentActionValidation,
+      this.dependencies.createNewCommentHttpAction.invoke.bind(this),
+    ]);
+  }
+
   public getRouter() {
     this.createArticle();
     this.getAllArticles();
     this.getSingleArticle();
     this.updateArticle();
     this.archiveArticle();
+    this.addComment();
 
     return this.router;
   }

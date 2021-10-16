@@ -31,7 +31,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
       return null;
     }
 
-    return Article.fromPersistence(result);
+    return Article.fromPersistence({ ...result, comments: [] });
   }
 
   public async update(article: Article) {

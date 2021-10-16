@@ -7,6 +7,7 @@ import { CreateNewArticleCommandHandler } from '@root/modules/articles/app/comma
 import { asClass, AwilixContainer } from 'awilix';
 import { UpdateArticleCommandHandler } from '@root/modules/articles/app/commands/update-article/update-article.command-handler';
 import { ArchiveArticleCommandHandler } from '@root/modules/articles/app/commands/archive-article/archive-article.command-handler';
+import { CreateNewCommentCommandHandler } from '@root/modules/articles/app/commands/create-new-comment/create-new-comment.command-handler';
 import { registerAsArray } from './register-as-array';
 
 export const registerCommandHandlers = (container: AwilixContainer) => {
@@ -19,6 +20,7 @@ export const registerCommandHandlers = (container: AwilixContainer) => {
       asClass(CreateNewArticleCommandHandler).singleton(),
       asClass(UpdateArticleCommandHandler).singleton(),
       asClass(ArchiveArticleCommandHandler).singleton(),
+      asClass(CreateNewCommentCommandHandler).singleton(),
     ]),
   });
 };

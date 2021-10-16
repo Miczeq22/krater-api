@@ -7,10 +7,13 @@ interface Dependencies {}
 export const performTransactionalOperation =
   ({}: Dependencies) =>
   async <AggregateRootType extends AggregateRoot<unknown>>(
-    operation: (aggregate: AggregateRootType) => Promise<DatabaseTransaction>,
+    operation:
+      | ((aggregate: AggregateRootType) => Promise<DatabaseTransaction>)
+      | DatabaseTransaction,
     aggregate: AggregateRootType,
   ) => {
-    const trx = await operation(aggregate);
+    const trx =
+      'commit' in operation && 'rollback' in operation ? operation : await operation(aggregate);
 
     try {
       await DomainEvents.dispatchDomainEventsForAggregate(aggregate, trx);
