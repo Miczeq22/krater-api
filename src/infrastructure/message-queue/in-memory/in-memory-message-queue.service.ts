@@ -96,7 +96,7 @@ export class DomainEvents {
             })
             .where('id', persistedEventId)
             .into('domain_event');
-        } catch (error) {
+        } catch (error: any) {
           logger.error(
             `[Domain Events]: Subscriber error occured on event: ${eventName} inside ${handler.name}`,
           );

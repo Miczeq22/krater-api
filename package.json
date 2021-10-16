@@ -83,7 +83,7 @@
     "hpp": "0.2.3",
     "jsonwebtoken": "8.5.1",
     "knex": "0.21.21",
-    "nodemailer": "6.6.3",
+    "nodemailer": "6.4.16",
     "pg": "8.7.1",
     "rascal": "13.1.0",
     "supertest": "6.1.5",
