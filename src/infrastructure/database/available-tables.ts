@@ -5,4 +5,5 @@ export enum AvailableDatabaseTable {
   DOMAIN_EVENT = 'public.domain_event',
   EMAIL_SENT = 'public.email_sent',
   ARTICLE = 'public.article',
+  ARTICLE_COMMENT = 'public.article_comment',
 }

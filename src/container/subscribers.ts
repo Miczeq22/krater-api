@@ -1,4 +1,5 @@
 import { DomainSubscriber } from '@root/framework/ddd-building-blocks/domain-subscriber';
+import { NewArticleCommentCreatedSubscriber } from '@root/modules/articles/app/subscribers/new-article-comment-created/new-article-comment-created.subscriber';
 import { ConfirmationCodeHasBeenResentSubscriber } from '@root/modules/platform-access/app/subscribers/confirmation-email-has-been-resent/confirmation-code-has-been-resent.subscriber';
 import { EmailVerificationCodeGeneratedSubscriber } from '@root/modules/platform-access/app/subscribers/email-verification-code-generated/email-verification-code-generated.subscriber';
 import { NewAccontRegisteredSubscriber } from '@root/modules/platform-access/app/subscribers/new-account-registered/new-account-registered.subscriber';
@@ -11,6 +12,7 @@ export const registerSubscribers = (container: AwilixContainer) => {
       asClass(NewAccontRegisteredSubscriber).singleton(),
       asClass(EmailVerificationCodeGeneratedSubscriber).singleton(),
       asClass(ConfirmationCodeHasBeenResentSubscriber).singleton(),
+      asClass(NewArticleCommentCreatedSubscriber).singleton(),
     ]),
   });
 };

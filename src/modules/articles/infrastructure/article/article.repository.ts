@@ -31,7 +31,12 @@ export class ArticleRepositoryImpl implements ArticleRepository {
       return null;
     }
 
-    return Article.fromPersistence({ ...result, comments: [] });
+    const comments = await queryBuilder
+      .select(['id', 'author_id AS authorId'])
+      .where('article_id', id)
+      .from(AvailableDatabaseTable.ARTICLE_COMMENT);
+
+    return Article.fromPersistence({ ...result, comments });
   }
 
   public async update(article: Article) {
